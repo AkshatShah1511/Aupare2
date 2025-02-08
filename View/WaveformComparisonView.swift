@@ -12,33 +12,51 @@ struct WaveformComparisonView: View {
                 Text("Original Audio Waveform")
                     .font(.headline)
                     .foregroundColor(.green)
+                
+                // ✅ Show uploaded file name
+                if let originalFile = viewModel.originalAudio {
+                    Text("Uploaded File: \(originalFile.name)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
 
                 if viewModel.originalWaveform.isEmpty {
                     Text("No waveform data")
                         .foregroundColor(.gray)
                 } else {
-                    ScrollView(.horizontal) {  // ✅ Expand graph horizontally
+                    ScrollView(.horizontal) {
                         Chart {
                             ForEach(viewModel.originalWaveform.indices, id: \.self) { index in
-                                if index % 100 == 0 {  // ✅ Show x-axis in hundreds
+                                if index % 200 == 0 {  // ✅ Reduce x-axis data points
                                     LineMark(
-                                        x: .value("Time (samples)", index),
-                                        y: .value("Amplitude", viewModel.originalWaveform[index])
+                                        x: .value("Time (ms)", index * 10),  // ✅ Convert samples to milliseconds
+                                        y: .value("Amplitude (dB)", viewModel.originalWaveform[index])
                                     )
                                     .foregroundStyle(.green)
                                     .interpolationMethod(.catmullRom)
-                                    .lineStyle(StrokeStyle(lineWidth: 0.5))  // ✅ Reduce line thickness
+                                    .lineStyle(StrokeStyle(lineWidth: 0.7))
                                 }
                             }
                         }
+                        .chartXAxisLabel() {
+                            Text("Time (ms)")
+                        }
+                        .chartYAxisLabel() {
+                            Text("Amplitude(A)")
+                        }
                         .chartXAxis {
-                            AxisMarks()
+                            
+                            AxisMarks(position: .bottom, values: .automatic) {
+                                AxisValueLabel()
+                            }
                         }
                         .chartYAxis {
-                            AxisMarks()
+                            AxisMarks(position: .leading, values: .automatic) {
+                                AxisValueLabel()
+                            }
                         }
                         .frame(height: 300)
-                        .frame(width: 800)
+                        .frame(width: max(UIScreen.main.bounds.width, CGFloat(viewModel.originalWaveform.count / 30)))  // ✅ Auto-resize width
                         .padding()
                     }
                 }
@@ -52,6 +70,13 @@ struct WaveformComparisonView: View {
                 Text("Second Audio Waveform")
                     .font(.headline)
                     .foregroundColor(.blue)
+                
+                // ✅ Show uploaded file name
+                if let secondFile = viewModel.secondAudio {
+                    Text("Uploaded File: \(secondFile.name)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
 
                 if viewModel.secondWaveform.isEmpty {
                     Text("No waveform data")
@@ -60,25 +85,35 @@ struct WaveformComparisonView: View {
                     ScrollView(.horizontal) {
                         Chart {
                             ForEach(viewModel.secondWaveform.indices, id: \.self) { index in
-                                if index % 100 == 0 {  // ✅ Show x-axis in hundreds
+                                if index % 200 == 0 {
                                     LineMark(
-                                        x: .value("Time (samples)", index),
-                                        y: .value("Amplitude", viewModel.secondWaveform[index])
+                                        x: .value("Time (ms)", index * 10),
+                                        y: .value("Amplitude (dB)", viewModel.secondWaveform[index])
                                     )
                                     .foregroundStyle(.blue)
                                     .interpolationMethod(.catmullRom)
-                                    .lineStyle(StrokeStyle(lineWidth: 0.5))
+                                    .lineStyle(StrokeStyle(lineWidth: 0.7))
                                 }
                             }
                         }
+                        .chartXAxisLabel() {
+                            Text("Time (ms)")
+                        }
+                        .chartYAxisLabel() {
+                            Text("Amplitude(A)")
+                        }
                         .chartXAxis {
-                            AxisMarks()
+                            AxisMarks(position: .bottom, values: .automatic) {
+                                AxisValueLabel()
+                            }
                         }
                         .chartYAxis {
-                            AxisMarks()
+                            AxisMarks(position: .leading, values: .automatic) {
+                                AxisValueLabel()
+                            }
                         }
                         .frame(height: 300)
-                        .frame(width:800)
+                        .frame(width: max(UIScreen.main.bounds.width, CGFloat(viewModel.secondWaveform.count / 30)))  // ✅ Auto-resize width
                         .padding()
                     }
                 }
@@ -87,6 +122,6 @@ struct WaveformComparisonView: View {
                 Label("Second", systemImage: "waveform")
             }
         }
-        .tabViewStyle(.automatic)  // ✅ Make the TabView vertical
+        .tabViewStyle(.automatic)
     }
 }
